@@ -25,6 +25,8 @@ workouts.
 | `examples/` | A complete, valid example plan and log. |
 | `LLM_GUIDE.md` | How to have an LLM author plans/logs against this schema. |
 | `validate.mjs` | Validates the schemas, examples, and library. |
+| `Package.swift` | Swift Package Manager manifest for the `FitPlanSchema` library (see [Swift package](#swift-package-fitplanschema)). |
+| `swift/` | Swift sources for `FitPlanSchema`: `Codable` DTOs (`FitPlanDTO.swift`, `FitPlanLogDTO.swift`) mirroring the plan/log schemas, plus `FitPlanResources.swift` (bundled-resource accessors) and `swift/Tests/`. |
 
 All documents are [JSON Schema 2020-12](https://json-schema.org/).
 
@@ -218,6 +220,66 @@ plus a set of positive/negative cases (rest day with workouts, work day with no
 workout, bad enum values, and a future workout type). See
 `examples/plan.example.json` and `examples/log.example.json` for complete, valid
 documents, and `LLM_GUIDE.md` for generating documents with an LLM.
+
+## Swift package (`FitPlanSchema`)
+
+This repo doubles as a Swift Package Manager package so Swift/iOS apps can
+consume the schema as **typed models** and get the movement library + schema
+files **bundled as resources** — tracking whichever version they pin, rather
+than vendoring a snapshot that drifts.
+
+### What it provides
+
+- **`Codable` DTOs** that mirror the schemas one-to-one — the schema as Swift
+  code:
+  - `FitPlanPlan` / `FitPlanDay` / `FitPlanWorkout` / `StrengthSet` ·
+    `StrengthSetBlock` / `CardioSet` · `CardioSetBlock` (in
+    `swift/FitPlanDTO.swift`).
+  - `FitPlanLog` and the `actual*` logged variants (in
+    `swift/FitPlanLogDTO.swift`).
+  - `Movement` plus the enums (`DayType`, `ActivityType`, `DurationUnit`,
+    `EffortZone`, `CardioSetType`, `WeightUnit`, `BodyPart`).
+  - Polymorphic pieces decode faithfully: a workout is discriminated on
+    `type` (unknown types decode to `.other` for forward-compatibility), and a
+    set vs. a set block is a `oneOf` decoded by shape.
+- **Bundled resources** via `Bundle.module`, reached through `FitPlanResources`:
+  - `FitPlanResources.movements()` → `[Movement]` (the 873-entry library).
+  - `FitPlanResources.example("plan.example.json" / "log.example.json")` → `Data`.
+  - The `*.schema.json` files are bundled too (for reference/versioning).
+
+The Swift sources compile from `swift/`; the JSON files stay at the repo root
+and are declared as package resources, so there is a single canonical copy.
+
+### Adding it to your app
+
+```swift
+// Package.swift
+dependencies: [
+    .package(url: "https://github.com/NRohner/fit-plan", from: "1.0.0")
+],
+targets: [
+    .target(name: "YourTarget", dependencies: [
+        .product(name: "FitPlanSchema", package: "fit-plan")
+    ])
+]
+```
+
+```swift
+import FitPlanSchema
+
+let plan = try JSONDecoder().decode(FitPlanPlan.self, from: json)
+let movements = try FitPlanResources.movements()   // [Movement]
+```
+
+Releases are tagged `MAJOR.MINOR.PATCH` matching `schemaVersion`; bump the
+dependency to pick up a newer schema + movement library.
+
+### Building / testing the Swift package
+
+```bash
+swift build
+swift test        # decodes the examples + all 873 movements, checks round-trips
+```
 
 ## Attribution
 
