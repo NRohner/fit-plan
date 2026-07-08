@@ -161,12 +161,12 @@
     "strengthSet": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["movementId", "reps", "rounds", "weight", "weightUnit"],
+      "required": ["movement", "reps", "rounds", "weight", "weightUnit"],
       "properties": {
-        "movementId": {
-          "type": "integer",
-          "minimum": 1,
-          "description": "References an id in the movement library (movements.json)."
+        "movement": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Name of the movement. Free-form, but prefer a canonical name from the movement library (movements.json) for consistency across documents."
         },
         "reps": {
           "type": "integer",

@@ -151,9 +151,13 @@
     "loggedStrengthSet": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["movementId", "actualReps", "actualRounds", "actualWeight", "weightUnit"],
+      "required": ["movement", "actualReps", "actualRounds", "actualWeight", "weightUnit"],
       "properties": {
-        "movementId": { "type": "integer", "minimum": 1 },
+        "movement": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Name of the movement. Prefer a canonical name from movements.json for consistency."
+        },
         "actualReps": {
           "type": "integer",
           "minimum": 0,

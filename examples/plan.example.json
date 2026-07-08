@@ -10,16 +10,16 @@
           "type": "strength",
           "name": "Chest & Shoulders",
           "sets": [
-            { "movementId": 44, "reps": 8, "rounds": 4, "weight": 135, "weightUnit": "lbs" },
-            { "movementId": 772, "reps": 10, "rounds": 3, "weight": 65, "weightUnit": "lbs" },
+            { "movement": "Barbell Bench Press - Medium Grip", "reps": 8, "rounds": 4, "weight": 135, "weightUnit": "lbs" },
+            { "movement": "Standing Military Press", "reps": 10, "rounds": 3, "weight": 65, "weightUnit": "lbs" },
             {
               "sets": [
-                { "movementId": 665, "reps": 15, "rounds": 1, "weight": 15, "weightUnit": "lbs" },
-                { "movementId": 825, "reps": 15, "rounds": 1, "weight": 40, "weightUnit": "lbs" }
+                { "movement": "Side Lateral Raise", "reps": 15, "rounds": 1, "weight": 15, "weightUnit": "lbs" },
+                { "movement": "Triceps Pushdown", "reps": 15, "rounds": 1, "weight": 40, "weightUnit": "lbs" }
               ],
               "reps": 3
             },
-            { "movementId": 568, "reps": 0, "rounds": 3, "weight": 0, "weightUnit": "lbs" }
+            { "movement": "Pushups", "reps": 0, "rounds": 3, "weight": 0, "weightUnit": "lbs" }
           ]
         }
       ]

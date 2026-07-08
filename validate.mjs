@@ -24,7 +24,7 @@ const cases = [
 const neg = [
   ["https://fit-plan.dev/plan.schema.json", { schemaVersion: "1.0.0", name: "x", days: [{ type: "rest", workouts: [{ type: "cardio", name: "c", activityType: "running", sets: [{ type: "main", duration: 1, durationUnits: "miles" }] }] }] }, "rest day with workouts"],
   ["https://fit-plan.dev/plan.schema.json", { schemaVersion: "1.0.0", name: "x", days: [{ type: "work" }] }, "work day with no workouts"],
-  ["https://fit-plan.dev/plan.schema.json", { schemaVersion: "1.0.0", name: "x", days: [{ type: "work", workouts: [{ type: "strength", name: "s", sets: [{ movementId: 0, reps: 5, rounds: 1, weight: 10, weightUnit: "lbs" }] }] }] }, "movementId < 1"],
+  ["https://fit-plan.dev/plan.schema.json", { schemaVersion: "1.0.0", name: "x", days: [{ type: "work", workouts: [{ type: "strength", name: "s", sets: [{ movement: "", reps: 5, rounds: 1, weight: 10, weightUnit: "lbs" }] }] }] }, "empty movement name"],
   ["https://fit-plan.dev/plan.schema.json", { schemaVersion: "1.0.0", name: "x", days: [{ type: "work", workouts: [{ type: "cardio", name: "c", activityType: "flying", sets: [{ type: "main", duration: 1, durationUnits: "miles" }] }] }] }, "bad activityType"],
   ["https://fit-plan.dev/movement.schema.json", [{ id: 1, name: "x", description: "d", bodyPart: "elbow" }], "bad bodyPart"],
 ];

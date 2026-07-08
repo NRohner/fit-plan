@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://fit-plan.dev/movement.schema.json",
   "title": "FitPlan Movement Library",
-  "description": "The list of movements referenceable by strength sets via movementId. Custom movements are appended to this array. Note: JSON Schema cannot enforce id uniqueness across the array — callers must keep ids unique.",
+  "description": "The canonical catalog of movements, referenced by strength sets via the `movement` name. Provides description, target bodyPart, and links; also the recommended naming vocabulary. Custom movements are appended to this array. Note: JSON Schema cannot enforce id uniqueness across the array — callers must keep ids unique.",
   "type": "array",
   "items": { "$ref": "#/$defs/movement" },
 
