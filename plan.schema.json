@@ -1,0 +1,208 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fit-plan.dev/plan.schema.json",
+  "title": "FitPlan Plan",
+  "description": "A workout plan: a sequence of days, each work or rest. Holds prescribed values only; actuals are recorded in log.schema.json.",
+  "type": "object",
+  "required": ["schemaVersion", "name", "days"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "description": "Semantic version of the FitPlan schema this document targets.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "notes": { "type": ["string", "null"] },
+    "days": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/day" }
+    }
+  },
+
+  "$defs": {
+    "activityType": {
+      "type": "string",
+      "enum": ["running", "cycling", "swimming", "rowing", "gym_cardio", "general_cardio"]
+    },
+    "durationUnits": {
+      "type": "string",
+      "enum": ["seconds", "minutes", "hours", "miles", "kilometers", "yards", "meters"]
+    },
+    "effortZone": {
+      "description": "Heart-rate zone. z0 = recovery (below z1). Nullable.",
+      "enum": ["z0", "z1", "z2", "z3", "z4", "z5", null]
+    },
+    "cardioSetType": {
+      "type": "string",
+      "enum": ["warmup", "main", "cooldown"]
+    },
+    "weightUnit": {
+      "type": "string",
+      "enum": ["kg", "lbs"]
+    },
+
+    "day": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "type": "string", "enum": ["work", "rest"] },
+        "name": { "type": ["string", "null"] },
+        "notes": { "type": ["string", "null"] }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "work" } } },
+          "then": {
+            "required": ["workouts"],
+            "properties": {
+              "workouts": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "$ref": "#/$defs/workout" }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "rest" } } },
+          "then": {
+            "not": { "required": ["workouts"] }
+          }
+        }
+      ]
+    },
+
+    "workout": {
+      "type": "object",
+      "description": "Discriminated on `type`. Known types (cardio, strength) are validated fully; unknown future types validate against the base only, so old validators accept new-type documents gracefully.",
+      "required": ["type", "name"],
+      "properties": {
+        "type": { "type": "string" },
+        "name": { "type": "string", "minLength": 1 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "cardio" } }, "required": ["type"] },
+          "then": {
+            "required": ["activityType", "sets"],
+            "properties": {
+              "activityType": { "$ref": "#/$defs/activityType" },
+              "sets": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "oneOf": [
+                    { "$ref": "#/$defs/cardioSet" },
+                    { "$ref": "#/$defs/cardioSetBlock" }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "strength" } }, "required": ["type"] },
+          "then": {
+            "required": ["sets"],
+            "properties": {
+              "sets": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "oneOf": [
+                    { "$ref": "#/$defs/strengthSet" },
+                    { "$ref": "#/$defs/strengthSetBlock" }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+
+    "cardioSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "duration", "durationUnits"],
+      "properties": {
+        "type": { "$ref": "#/$defs/cardioSetType" },
+        "duration": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Prescribed time or distance for the set."
+        },
+        "durationUnits": { "$ref": "#/$defs/durationUnits" },
+        "effort": { "$ref": "#/$defs/effortZone" },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+
+    "cardioSetBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sets", "reps"],
+      "properties": {
+        "sets": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/cardioSet" }
+        },
+        "reps": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of times the block is repeated."
+        },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+
+    "strengthSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["movementId", "reps", "rounds", "weight", "weightUnit"],
+      "properties": {
+        "movementId": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "References an id in the movement library (movements.json)."
+        },
+        "reps": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Prescribed reps. 0 = perform to failure."
+        },
+        "rounds": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Times to perform the reps. 10 reps x 4 rounds = 40 total."
+        },
+        "weight": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Prescribed weight. 0 = bodyweight / no added weight."
+        },
+        "weightUnit": { "$ref": "#/$defs/weightUnit" }
+      }
+    },
+
+    "strengthSetBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sets", "reps"],
+      "properties": {
+        "sets": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/strengthSet" }
+        },
+        "reps": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of times the block is repeated."
+        }
+      }
+    }
+  }
+}

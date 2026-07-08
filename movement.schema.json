@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fit-plan.dev/movement.schema.json",
+  "title": "FitPlan Movement Library",
+  "description": "The list of movements referenceable by strength sets via movementId. Custom movements are appended to this array. Note: JSON Schema cannot enforce id uniqueness across the array — callers must keep ids unique.",
+  "type": "array",
+  "items": { "$ref": "#/$defs/movement" },
+
+  "$defs": {
+    "movement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "description", "bodyPart"],
+      "properties": {
+        "id": { "type": "integer", "minimum": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 },
+        "bodyPart": {
+          "type": "string",
+          "enum": [
+            "lower_body", "upper_body", "core", "full_body", "chest",
+            "bicep", "tricep", "back", "shoulder", "glute", "hamstring",
+            "calf", "quad", "neck", "forearm", "other"
+          ]
+        },
+        "notes": { "type": ["string", "null"] },
+        "link": { "type": ["string", "null"], "format": "uri" }
+      }
+    }
+  }
+}

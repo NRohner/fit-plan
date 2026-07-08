@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "1.0.0",
+  "planName": "Sample 3-Day Split",
+  "date": "2026-07-08",
+  "days": [
+    {
+      "type": "work",
+      "name": "Push",
+      "planDayIndex": 0,
+      "workouts": [
+        {
+          "type": "strength",
+          "name": "Chest & Shoulders",
+          "sets": [
+            { "movementId": 44, "actualReps": 8, "actualRounds": 4, "actualWeight": 135, "weightUnit": "lbs" },
+            { "movementId": 772, "actualReps": 8, "actualRounds": 3, "actualWeight": 65, "weightUnit": "lbs", "notes": "Prescribed 10 reps, only hit 8" },
+            {
+              "sets": [
+                { "movementId": 665, "actualReps": 15, "actualRounds": 1, "actualWeight": 15, "weightUnit": "lbs" },
+                { "movementId": 825, "actualReps": 12, "actualRounds": 1, "actualWeight": 40, "weightUnit": "lbs" }
+              ],
+              "actualReps": 3
+            },
+            { "movementId": 568, "actualReps": 0, "actualRounds": 0, "actualWeight": 0, "weightUnit": "lbs", "notes": "Skipped - out of time" }
+          ]
+        }
+      ]
+    },
+    { "type": "rest", "name": "Recovery", "planDayIndex": 2 }
+  ]
+}

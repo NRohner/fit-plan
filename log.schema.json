@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fit-plan.dev/log.schema.json",
+  "title": "FitPlan Log",
+  "description": "A logged (performed) workout session. References a plan by name and records ACTUAL values, so deviation from the prescribed plan is captured. Shared enums are $ref'd from plan.schema.json to keep the two files in sync.",
+  "type": "object",
+  "required": ["schemaVersion", "planName", "date", "days"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "planName": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Name of the plan this log corresponds to (the plan reference)."
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the session was performed (YYYY-MM-DD)."
+    },
+    "notes": { "type": ["string", "null"] },
+    "days": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/loggedDay" }
+    }
+  },
+
+  "$defs": {
+    "loggedDay": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "type": "string", "enum": ["work", "rest"] },
+        "planDayIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Optional index into the plan's `days` array this logged day maps to."
+        },
+        "name": { "type": ["string", "null"] },
+        "notes": { "type": ["string", "null"] }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "work" } } },
+          "then": {
+            "required": ["workouts"],
+            "properties": {
+              "workouts": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "$ref": "#/$defs/loggedWorkout" }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "rest" } } },
+          "then": { "not": { "required": ["workouts"] } }
+        }
+      ]
+    },
+
+    "loggedWorkout": {
+      "type": "object",
+      "description": "Mirrors plan.workout. Unknown future types validate against the base only.",
+      "required": ["type", "name"],
+      "properties": {
+        "type": { "type": "string" },
+        "name": { "type": "string", "minLength": 1 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "cardio" } }, "required": ["type"] },
+          "then": {
+            "required": ["activityType", "sets"],
+            "properties": {
+              "activityType": { "$ref": "https://fit-plan.dev/plan.schema.json#/$defs/activityType" },
+              "sets": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "oneOf": [
+                    { "$ref": "#/$defs/loggedCardioSet" },
+                    { "$ref": "#/$defs/loggedCardioSetBlock" }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "strength" } }, "required": ["type"] },
+          "then": {
+            "required": ["sets"],
+            "properties": {
+              "sets": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "oneOf": [
+                    { "$ref": "#/$defs/loggedStrengthSet" },
+                    { "$ref": "#/$defs/loggedStrengthSetBlock" }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+
+    "loggedCardioSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "actualDuration", "durationUnits"],
+      "properties": {
+        "type": { "$ref": "https://fit-plan.dev/plan.schema.json#/$defs/cardioSetType" },
+        "actualDuration": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Actual time or distance performed. 0 = the set was skipped."
+        },
+        "durationUnits": { "$ref": "https://fit-plan.dev/plan.schema.json#/$defs/durationUnits" },
+        "actualEffort": { "$ref": "https://fit-plan.dev/plan.schema.json#/$defs/effortZone" },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+
+    "loggedCardioSetBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sets", "actualReps"],
+      "properties": {
+        "sets": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/loggedCardioSet" }
+        },
+        "actualReps": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Actual rounds of the block completed. 0 = the block was skipped."
+        },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+
+    "loggedStrengthSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["movementId", "actualReps", "actualRounds", "actualWeight", "weightUnit"],
+      "properties": {
+        "movementId": { "type": "integer", "minimum": 1 },
+        "actualReps": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Actual reps completed. 0 = the set was skipped."
+        },
+        "actualRounds": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Actual rounds completed. 0 = the set was skipped."
+        },
+        "actualWeight": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Actual weight used. 0 = bodyweight / no added weight."
+        },
+        "weightUnit": { "$ref": "https://fit-plan.dev/plan.schema.json#/$defs/weightUnit" },
+        "notes": { "type": ["string", "null"], "description": "Free-text notes, e.g. why actuals deviated from the plan." }
+      }
+    },
+
+    "loggedStrengthSetBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sets", "actualReps"],
+      "properties": {
+        "sets": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/loggedStrengthSet" }
+        },
+        "actualReps": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Actual rounds of the block completed. 0 = the block was skipped."
+        },
+        "notes": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "1.0.0",
+  "name": "Sample 3-Day Split",
+  "days": [
+    {
+      "type": "work",
+      "name": "Push",
+      "workouts": [
+        {
+          "type": "strength",
+          "name": "Chest & Shoulders",
+          "sets": [
+            { "movementId": 44, "reps": 8, "rounds": 4, "weight": 135, "weightUnit": "lbs" },
+            { "movementId": 772, "reps": 10, "rounds": 3, "weight": 65, "weightUnit": "lbs" },
+            {
+              "sets": [
+                { "movementId": 665, "reps": 15, "rounds": 1, "weight": 15, "weightUnit": "lbs" },
+                { "movementId": 825, "reps": 15, "rounds": 1, "weight": 40, "weightUnit": "lbs" }
+              ],
+              "reps": 3
+            },
+            { "movementId": 568, "reps": 0, "rounds": 3, "weight": 0, "weightUnit": "lbs" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "work",
+      "name": "Conditioning",
+      "workouts": [
+        {
+          "type": "cardio",
+          "name": "Zone 2 Run with Strides",
+          "activityType": "running",
+          "sets": [
+            { "type": "warmup", "duration": 10, "durationUnits": "minutes", "effort": "z1" },
+            { "type": "main", "duration": 5, "durationUnits": "miles", "effort": "z2" },
+            {
+              "sets": [
+                { "type": "main", "duration": 30, "durationUnits": "seconds", "effort": "z4" },
+                { "type": "cooldown", "duration": 90, "durationUnits": "seconds", "effort": "z1" }
+              ],
+              "reps": 6,
+              "notes": "Strides"
+            },
+            { "type": "cooldown", "duration": 5, "durationUnits": "minutes", "effort": null }
+          ]
+        }
+      ]
+    },
+    { "type": "rest", "name": "Recovery" }
+  ]
+}
